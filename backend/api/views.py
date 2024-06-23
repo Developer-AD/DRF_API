@@ -1,48 +1,30 @@
-# from rest_framework.decorators import api_view
-# from rest_framework.response import Response
-
 from django.shortcuts import render
-from rest_framework.renderers import JSONRenderer
 from .models import Student
 from .serializers import StudentSerializer
 from rest_framework.response import Response
 from django.http import HttpResponse, JsonResponse
 import io
 from rest_framework.parsers import JSONParser
+
 from django.views.decorators.csrf import csrf_exempt
-
-
+from django.utils.decorators import method_decorator
+from django.views import View
 
 # ==================================== Write Your Code Here ==========================================
 def home(request):
     return render(request, 'index.html')
 
 
-def student_detail(request, id):
-    print('---------------------- Student Details Start ------------------')
-    student = Student.objects.get(id=id)
-    serializer = StudentSerializer(student)
-
-    # data = JSONRenderer().render(serializer.data)
-    # return HttpResponse(data, content_type='application/json')
-    return JsonResponse(serializer.data)  # safe=False not required for single.
-
-
-def student_details(request):
-    print('---------------------- Student Details Start ------------------')
-    # student = Student.objects.get(id=2)
+def student_info(request):
     student = Student.objects.all()
     serializer = StudentSerializer(student, many=True)
-
-    # data = JSONRenderer().render(serializer.data)
-    # return HttpResponse(data, content_type='application/json')
-    return JsonResponse(serializer.data, safe=False)
+    return JsonResponse(serializer.data, safe=False) # safe=False # Imp for more than one keys.
 
 
-@csrf_exempt
-def student_api(request):
-    # ------------------------------------ VIEW ------------------------------
-    if request.method == 'GET':
+@method_decorator(csrf_exempt, name='dispatch')
+class StudentAPI(View):
+    # ---------------------------------VIEW ------------------------------------------------
+    def get(self, request, *args, **kwargs):
         """
         You have to make a GET request with atleast
         empty `{}` Json data. Make request in thunder or requests. 
@@ -66,8 +48,8 @@ def student_api(request):
         
         return JsonResponse(serializer.data, safe=False)  # safe=False not required for single.
 
-    # ------------------------------------ CTEATE ------------------------------
-    if request.method == 'POST':
+    # ---------------------------------CTEATE ----------------------------------------------
+    def post(self, request, *args, **kwargs):
         json_data = request.body
 
         stream = io.BytesIO(json_data)
@@ -81,8 +63,8 @@ def student_api(request):
 
         return JsonResponse(serializer.errors)
 
-# -------------------------------- PUT -------------------------------------------------
-    if request.method == 'PUT':
+    # ---------------------------------PUT -------------------------------------------------
+    def put(self, request, *args, **kwargs):
         json_data = request.body
         stream = io.BytesIO(json_data)
         python_data = JSONParser().parse(stream)
@@ -106,8 +88,8 @@ def student_api(request):
             except Student.DoesNotExist:
                 return JsonResponse({'msg': "ID Doesn't Exists", 'status': 400})
 
-# -------------------------------- PATCH -------------------------------------------------
-    if request.method == 'PATCH':
+    # ---------------------------------PATCH ------------------------------------------------
+    def patch(self, request, *args, **kwargs):
         json_data = request.body
         stream = io.BytesIO(json_data)
         python_data = JSONParser().parse(stream)
@@ -135,8 +117,8 @@ def student_api(request):
                 
         return JsonResponse({'msg': 'ID Not Sent', 'status': 400})
 
-# -------------------------------- DELETE ------------------------------------------
-    if request.method == 'DELETE':
+    # ---------------------------------DELETE -----------------------------------------------
+    def delete(self, request, *args, **kwargs):
         json_data = request.body
         stream = io.BytesIO(json_data)
         python_data = JSONParser().parse(stream)

@@ -3,7 +3,6 @@ from api import views
 
 urlpatterns = [
     path('', views.home),
-    path('stdinfo/<int:id>/', views.student_detail),
-    path('student-api/', views.student_api),
-    path('stdinfo/', views.student_details),
+    path('stdinfo/', views.student_info),
+    path('student-api/', views.StudentAPI.as_view()),
 ]
