@@ -1,14 +1,18 @@
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+
+
 from django.shortcuts import render
+from rest_framework.renderers import JSONRenderer
 from .models import Student
 from .serializers import StudentSerializer
 from rest_framework.response import Response
 from django.http import HttpResponse, JsonResponse
 import io
 from rest_framework.parsers import JSONParser
-
 from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-from django.views import View
+
 
 # ==================================== Write Your Code Here ==========================================
 def home(request):
@@ -16,120 +20,123 @@ def home(request):
 
 
 def student_info(request):
+    print('---------------------- Student Details Start ------------------')
+    # student = Student.objects.get(id=2)
     student = Student.objects.all()
     serializer = StudentSerializer(student, many=True)
-    return JsonResponse(serializer.data, safe=False) # safe=False # Imp for more than one keys.
+
+    # data = JSONRenderer().render(serializer.data)
+    # return HttpResponse(data, content_type='application/json')
+    return JsonResponse(serializer.data, safe=False)
 
 
-@method_decorator(csrf_exempt, name='dispatch')
-class StudentAPI(View):
-    # ---------------------------------VIEW ------------------------------------------------
-    def get(self, request, *args, **kwargs):
-        """
-        You have to make a GET request with atleast
-        empty `{}` Json data. Make request in thunder or requests. 
-        """
-        
-        json_data = request.body
-        stream = io.BytesIO(json_data)
-        python_data = JSONParser().parse(stream)
+# @api_view() # By default 'GET'.
+@api_view(['GET', 'POST', 'PUT', 'PATCH','DELETE'])
+def student_api(request):
+    # ------------------------------------ VIEW ------------------------------
+    if request.method == 'GET':
+        id = request.data.get('id')
 
-        id = python_data.get('id', None)
         if id is not None:
-            student = Student.objects.get(id=id)
-            serializer = StudentSerializer(student)
-            
-            return JsonResponse(serializer.data)
-            return HttpResponse('Get single data.')
+            try:
+                    
+                student = Student.objects.get(id=id)
+                serializer = StudentSerializer(student)
+
+                return Response(serializer.data)
+            except Student.DoesNotExist:
+                response = {'msg': 'Student not found..!'}
+                return Response(response, status=status.HTTP_404_NOT_FOUND)
 
         # If Id id None then send all data.
         students = Student.objects.all()
         serializer = StudentSerializer(students, many=True)
+
+        # safe=False not required for single.
+        return Response(serializer.data)
+
+    # ------------------------------------ CTEATE ------------------------------
+    if request.method == 'POST':
+        """
+        request.data = Returns parsed JSON data from the request body.
+        or
+        request.POST = Returns POST data from the request body.
         
-        return JsonResponse(serializer.data, safe=False)  # safe=False not required for single.
-
-    # ---------------------------------CTEATE ----------------------------------------------
-    def post(self, request, *args, **kwargs):
-        json_data = request.body
-
-        stream = io.BytesIO(json_data)
-        python_data = JSONParser().parse(stream)
-        serializer = StudentSerializer(data=python_data)
+        request.method = Returns the HTTP method of the request (e.g., 'GET', 'POST
+        request.query_params = Returns query parameters from the request URL.
+        request.GET --> request.query_params.get('key', default_value) [standard]
+        """
+        
+        serializer = StudentSerializer(data=request.data)
 
         if serializer.is_valid():
             serializer.save()
-            response = {'msg': 'Data inserted successfully..!', 'status': 200}
-            return JsonResponse(response)
+            response = {'msg': 'Data inserted successfully..!'}
+            return Response(response, status=status.HTTP_201_CREATED)
 
-        return JsonResponse(serializer.errors)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # ---------------------------------PUT -------------------------------------------------
-    def put(self, request, *args, **kwargs):
-        json_data = request.body
-        stream = io.BytesIO(json_data)
-        python_data = JSONParser().parse(stream)
+# -------------------------------- PUT -------------------------------------------------
+    if request.method == 'PUT':
+        id = request.data.get('id')
 
-        id = python_data.get('id', None)
         if id is not None:
             try:
                 student = Student.objects.get(id=id)
-
                 ''' partial=True : This will expect all fields to update otherwise you will
                     get All fields required.'''
-                # serializer = StudentSerializer(student, data = python_data, partial=True) # partial update.
-                # full update.
-                serializer = StudentSerializer(student, data=python_data)
+              
+                serializer = StudentSerializer(student, data=request.data)
 
                 if serializer.is_valid():
                     serializer.save()
-                    return JsonResponse({'msg': 'Data Udpated..!', 'status': 200})
+                    response = {'msg': 'Data Updated Successfully..!'}
+                    return Response(response, status=status.HTTP_200_OK)
 
-                return JsonResponse(serializer.errors)
+                return Response(serializer.errors)
+
             except Student.DoesNotExist:
-                return JsonResponse({'msg': "ID Doesn't Exists", 'status': 400})
+                return JsonResponse({"msg": "Student not found..!", 'status': 400})
 
-    # ---------------------------------PATCH ------------------------------------------------
-    def patch(self, request, *args, **kwargs):
-        json_data = request.body
-        stream = io.BytesIO(json_data)
-        python_data = JSONParser().parse(stream)
-
-        id = python_data.get('id', None)
+# -------------------------------- PATCH -------------------------------------------------
+    if request.method == 'PATCH':
+        id = request.data.get('id')
 
         if id is not None:
             try:
                 student = Student.objects.get(id=id)
 
-                ''' partial=True : This will expect all fields to update otherwise you will
-                    get All fields required.'''
                 serializer = StudentSerializer(
-                    student, data=python_data, partial=True)  # partial update.
-                # serializer = StudentSerializer(student, data = python_data) # full update.
+                    student, data=request.data, partial=True)  # partial update.
 
                 if serializer.is_valid():
                     serializer.save()
-                    return JsonResponse({'msg': 'Data Udpated..!', 'status': 200})
+                    response = {'msg': 'Data Updated Successfully..!'}
+                    return Response(response, status=status.HTTP_200_OK)
 
-                return JsonResponse(serializer.errors)
-                    
+                return Response(serializer.errors)
+
             except Student.DoesNotExist:
-                return JsonResponse({'msg': "ID Doesn't Exists", 'status': 400})
-                
-        return JsonResponse({'msg': 'ID Not Sent', 'status': 400})
+                response = {"msg": "Student not found..!"}
+                return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
-    # ---------------------------------DELETE -----------------------------------------------
-    def delete(self, request, *args, **kwargs):
-        json_data = request.body
-        stream = io.BytesIO(json_data)
-        python_data = JSONParser().parse(stream)
+        return Response({'msg': 'ID Not Sent'}, status=status.HTTP_400_BAD_REQUEST)
+        
 
-        id = python_data.get('id', None)
+# -------------------------------- DELETE ------------------------------------------
+    if request.method == 'DELETE':
+        id = request.data.get('id')
 
         if id is not None:
             try:
                 student = Student.objects.get(id=id)
                 student.delete()
-                return JsonResponse({'msg': 'Data Deleted..!', 'status': 200})
+                response = {'msg': 'Data Deleted Successfully..!'}
+                return Response(response, status=status.HTTP_200_OK)
+
             except Student.DoesNotExist:
-                return JsonResponse({'msg':"ID Doesn't Exists", 'status':400})
-        return JsonResponse({'msg':'ID Not Sent', 'status':400})
+                response = {"msg": "Student not found..!"}
+                return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+        response = {'msg': 'ID Not Sent'}
+        return Response(response, status=status.HTTP_400_BAD_REQUEST)
