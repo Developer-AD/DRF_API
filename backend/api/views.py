@@ -32,14 +32,12 @@ def student_info(request):
 
 # @api_view() # By default 'GET'.
 @api_view(['GET', 'POST', 'PUT', 'PATCH','DELETE'])
-def student_api(request):
+def student_api(request, id=None):
     # ------------------------------------ VIEW ------------------------------
     if request.method == 'GET':
-        id = request.data.get('id')
 
         if id is not None:
             try:
-                    
                 student = Student.objects.get(id=id)
                 serializer = StudentSerializer(student)
 
@@ -78,8 +76,6 @@ def student_api(request):
 
 # -------------------------------- PUT -------------------------------------------------
     if request.method == 'PUT':
-        id = request.data.get('id')
-
         if id is not None:
             try:
                 student = Student.objects.get(id=id)
@@ -90,7 +86,7 @@ def student_api(request):
 
                 if serializer.is_valid():
                     serializer.save()
-                    response = {'msg': 'Data Updated Successfully..!'}
+                    response = {'msg': 'Complete Data Updated Successfully..!'}
                     return Response(response, status=status.HTTP_200_OK)
 
                 return Response(serializer.errors)
@@ -100,8 +96,6 @@ def student_api(request):
 
 # -------------------------------- PATCH -------------------------------------------------
     if request.method == 'PATCH':
-        id = request.data.get('id')
-
         if id is not None:
             try:
                 student = Student.objects.get(id=id)
@@ -125,8 +119,6 @@ def student_api(request):
 
 # -------------------------------- DELETE ------------------------------------------
     if request.method == 'DELETE':
-        id = request.data.get('id')
-
         if id is not None:
             try:
                 student = Student.objects.get(id=id)
