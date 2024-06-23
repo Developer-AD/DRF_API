@@ -1,41 +1,19 @@
-from rest_framework.decorators import api_view
+from django.shortcuts import render
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-
-from django.shortcuts import render
-from rest_framework.renderers import JSONRenderer
 from .models import Student
 from .serializers import StudentSerializer
-from rest_framework.response import Response
-from django.http import HttpResponse, JsonResponse
-import io
-from rest_framework.parsers import JSONParser
-from django.views.decorators.csrf import csrf_exempt
 
 
 # ==================================== Write Your Code Here ==========================================
 def home(request):
     return render(request, 'index.html')
 
-
-def student_info(request):
-    print('---------------------- Student Details Start ------------------')
-    # student = Student.objects.get(id=2)
-    student = Student.objects.all()
-    serializer = StudentSerializer(student, many=True)
-
-    # data = JSONRenderer().render(serializer.data)
-    # return HttpResponse(data, content_type='application/json')
-    return JsonResponse(serializer.data, safe=False)
-
-
-# @api_view() # By default 'GET'.
-@api_view(['GET', 'POST', 'PUT', 'PATCH','DELETE'])
-def student_api(request, id=None):
     # ------------------------------------ VIEW ------------------------------
-    if request.method == 'GET':
-
+class StudentAPI(APIView):
+    def get(self, request,id=None, format=None):
         if id is not None:
             try:
                 student = Student.objects.get(id=id)
@@ -54,7 +32,7 @@ def student_api(request, id=None):
         return Response(serializer.data)
 
     # ------------------------------------ CTEATE ------------------------------
-    if request.method == 'POST':
+    def post(self, request, format=None):
         """
         request.data = Returns parsed JSON data from the request body.
         or
@@ -75,7 +53,7 @@ def student_api(request, id=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # -------------------------------- PUT -------------------------------------------------
-    if request.method == 'PUT':
+    def put(self, request, id, format=None):
         if id is not None:
             try:
                 student = Student.objects.get(id=id)
@@ -95,7 +73,7 @@ def student_api(request, id=None):
                 return JsonResponse({"msg": "Student not found..!", 'status': 400})
 
 # -------------------------------- PATCH -------------------------------------------------
-    if request.method == 'PATCH':
+    def patch(self, request, id, format=None):
         if id is not None:
             try:
                 student = Student.objects.get(id=id)
@@ -118,7 +96,7 @@ def student_api(request, id=None):
         
 
 # -------------------------------- DELETE ------------------------------------------
-    if request.method == 'DELETE':
+    def delete(self, request, id, format=None):
         if id is not None:
             try:
                 student = Student.objects.get(id=id)
