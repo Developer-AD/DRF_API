@@ -3,6 +3,6 @@ from api import views
 
 urlpatterns = [
     path('', views.home),
-    # path('student-api/', views.StudentAPI.as_view()),
-    path('student-api/<int:pk>', views.StudentAPI.as_view()),
+    path('student-api/', views.ListCreateStdAPI.as_view()),
+    path('student-api/<int:pk>', views.RetrieveUpdateDeleteStdAPI.as_view()),
 ]

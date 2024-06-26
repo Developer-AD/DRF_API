@@ -14,45 +14,27 @@ from .serializers import StudentSerializer
 def home(request):
     return render(request, 'index.html')
 
-class StudentAPI(ListAPIView, RetrieveModelMixin):
+class ListCreateStdAPI(ListAPIView, ListModelMixin, CreateModelMixin):
+    # -------------------------- LIST & CREATE VIEW ALL OBJ------------------------------
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)    
 
-    """
-    In ListAPIView and CreateModelMixin not required PK.
-    RetrieveModelMixin and UpdateModelMixin and DestroyModelMixin required PK.
-    """
-    
-# # ------------------------------------ LIST VIEW ALL OBJ------------------------------
-    # queryset = Student.objects.all()
-    # serializer_class = StudentSerializer
-    # def get(self, request, *args, **kwargs):
-    #     return self.list(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
 
-# # ------------------------------------ RETRIVE SINGLE OBJ ONLY ------------------------------
+class RetrieveUpdateDeleteStdAPI(ListAPIView, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin):
+    # ---------------------- RETRIVE, UPDATE, DELETE SINGLE OBJ ONLY -----------------------
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
-    
-# # ------------------------------------ CTEATE ------------------------------
-    # queryset = Student.objects.all()
-    # serializer_class = StudentSerializer
-    # def post(self, request, *args, **kwargs):
-    #     return self.create(request, *args, **kwargs)
-
-# # -------------------------------- PUT -------------------------------------------------
-    # queryset = Student.objects.all()
-    # serializer_class = StudentSerializer
-    # def put(self, request, *args, **kwargs):
-    #     return self.update(request, *args, **kwargs)
-    
-# # -------------------------------- PATCH -------------------------------------------------
-    # queryset = Student.objects.all()
-    # serializer_class = StudentSerializer
-    # def patch(self, request, *args, **kwargs):
-    #     return self.update(request, *args, **kwargs)
-    
-# # -------------------------------- DELETE ------------------------------------------
-    # queryset = Student.objects.all()
-    # serializer_class = StudentSerializer
-    # def delete(self, request, *args, **kwargs):
-    #     return self.destroy(request, *args, **kwargs)
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+    # -------------------------------- PATCH ------------------------------------------
+    def patch(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+    # -------------------------------- DELETE ------------------------------------------
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
