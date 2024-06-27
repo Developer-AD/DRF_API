@@ -3,38 +3,61 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from rest_framework.generics import ListAPIView
-from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
+from rest_framework.generics import ListAPIView, CreateAPIView, UpdateAPIView, RetrieveAPIView, DestroyAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, RetrieveUpdateAPIView
 
 from .models import Student
 from .serializers import StudentSerializer
 
 
 # ==================================== Write Your Code Here ==========================================
+
+
+
+
 def home(request):
     return render(request, 'index.html')
 
-class ListCreateStdAPI(ListAPIView, ListModelMixin, CreateModelMixin):
-    # -------------------------- LIST & CREATE VIEW ALL OBJ------------------------------
+# -------------------- USING GENERIC VIEWSETS COMBINED CLASS START -----------------------
+class ListCreateStdAPI(ListCreateAPIView):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)    
+    
 
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
-
-class RetrieveUpdateDeleteStdAPI(ListAPIView, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin):
-    # ---------------------- RETRIVE, UPDATE, DELETE SINGLE OBJ ONLY -----------------------
+class RetrieveUpdateStdAPI(RetrieveUpdateAPIView):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
-    def get(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-    # -------------------------------- PATCH ------------------------------------------
-    def patch(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-    # -------------------------------- DELETE ------------------------------------------
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
+
+
+class RetrieveUpdateDeleteStdAPI(RetrieveUpdateDestroyAPIView):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+# -------------------- USING GENERIC VIEWSETS COMBINED CLASS END -------------------------
+
+
+
+
+
+# # -------------------- USING GENERIC VIEWSETS INDIVIDUAL CLASS START ---------------------
+# class ListStudentdAPI(ListAPIView):
+#     queryset = Student.objects.all()
+#     serializer_class = StudentSerializer
+
+# class CreateSudentAPI(CreateAPIView):
+#     queryset = Student.objects.all()
+#     serializer_class = StudentSerializer
+
+# class UpdateStudentAPI(UpdateAPIView):
+#     queryset = Student.objects.all()
+#     serializer_class = StudentSerializer
+
+
+# class RetrieveStudentAPI(RetrieveAPIView):
+#     queryset = Student.objects.all()
+#     serializer_class = StudentSerializer
+
+# class DestroyStudentAPI(DestroyAPIView):
+#     queryset = Student.objects.all()
+#     serializer_class = StudentSerializer
+# # -------------------- USING GENERIC VIEWSETS INDIVIDUAL CLASS END -----------------------
+

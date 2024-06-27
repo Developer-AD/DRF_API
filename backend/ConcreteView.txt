@@ -1,0 +1,89 @@
+# ==================================== urls.py ==========================================
+from django.urls import path
+from api import views
+
+urlpatterns = [
+    path('', views.home),
+    # path('student-api/', views.ListCreateStdAPI.as_view()),
+    # path('student-api/<int:pk>', views.RetrieveUpdateDeleteStdAPI.as_view()),
+
+# -------------------- USING GENERIC VIEWSETS COMBINED CLASS -----------------------
+    path('student-api/', views.ListCreateStdAPI.as_view()),
+    # path('student-api/<int:pk>', views.RetrieveUpdateStdAPI.as_view()),
+    path('student-api/<int:pk>', views.RetrieveUpdateDeleteStdAPI.as_view()),
+
+
+
+# -------------------- USING GENERIC VIEWSETS INDIVIDUAL CLASS -----------------------
+    # path('student-api/', views.ListStudentdAPI.as_view()),
+    # path('student-api/', views.CreateSudentAPI.as_view()),
+
+    # path('student-api/<int:pk>', views.RetrieveStudentAPI.as_view()),
+    # path('student-api/<int:pk>', views.UpdateStudentAPI.as_view()),
+    # path('student-api/<int:pk>', views.DestroyStudentAPI.as_view()),
+]
+
+
+
+
+
+
+# ==================================== views.py ==========================================
+from django.shortcuts import render
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+
+from rest_framework.generics import ListAPIView, CreateAPIView, UpdateAPIView, RetrieveAPIView, DestroyAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, RetrieveUpdateAPIView
+
+from .models import Student
+from .serializers import StudentSerializer
+
+
+
+def home(request):
+    return render(request, 'index.html')
+
+# -------------------- USING GENERIC VIEWSETS COMBINED CLASS START -----------------------
+class ListCreateStdAPI(ListCreateAPIView):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+    
+
+class RetrieveUpdateStdAPI(RetrieveUpdateAPIView):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+
+
+class RetrieveUpdateDeleteStdAPI(RetrieveUpdateDestroyAPIView):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+# -------------------- USING GENERIC VIEWSETS COMBINED CLASS END -------------------------
+
+
+
+
+
+# # -------------------- USING GENERIC VIEWSETS INDIVIDUAL CLASS START ---------------------
+# class ListStudentdAPI(ListAPIView):
+#     queryset = Student.objects.all()
+#     serializer_class = StudentSerializer
+
+# class CreateSudentAPI(CreateAPIView):
+#     queryset = Student.objects.all()
+#     serializer_class = StudentSerializer
+
+# class UpdateStudentAPI(UpdateAPIView):
+#     queryset = Student.objects.all()
+#     serializer_class = StudentSerializer
+
+
+# class RetrieveStudentAPI(RetrieveAPIView):
+#     queryset = Student.objects.all()
+#     serializer_class = StudentSerializer
+
+# class DestroyStudentAPI(DestroyAPIView):
+#     queryset = Student.objects.all()
+#     serializer_class = StudentSerializer
+# # -------------------- USING GENERIC VIEWSETS INDIVIDUAL CLASS END -----------------------
