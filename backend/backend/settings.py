@@ -60,11 +60,18 @@ CORS_ORIGIN_WHITELIST = (
     'http://localhost:3000',
 )
 
+"""
+        This is global settings for REST framework. All views will use this settings.
+        If you want to override these settings for specific views, you can define them in the viewset.
+"""
 # REST_FRAMEWORK = {
 #     # Use Django's standard `django.contrib.auth` permissions,
 #     # or allow read-only access for unauthenticated users.
+#     'DEFAULT_AUTHENTICATION_CLASSES': [
+#         'rest_framework.authentication.BasicAuthentication',
+#     ],
 #     'DEFAULT_PERMISSION_CLASSES': [
-#         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+#         'rest_framework.permissions.IsAuthenticated'
 #     ]
 # }
 

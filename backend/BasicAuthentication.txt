@@ -1,0 +1,64 @@
+#================================ settings.py ==========================
+"""
+        This is global settings for REST framework. All views will use this settings.
+        If you want to override these settings for specific views, you can define them in the viewset.
+"""
+# REST_FRAMEWORK = {
+#     # Use Django's standard `django.contrib.auth` permissions,
+#     # or allow read-only access for unauthenticated users.
+#     'DEFAULT_AUTHENTICATION_CLASSES': [
+#         'rest_framework.authentication.BasicAuthentication',
+#     ],
+#     'DEFAULT_PERMISSION_CLASSES': [
+#         'rest_framework.permissions.IsAuthenticated'
+#     ]
+# }
+
+
+
+
+#================================ urls.py ==========================
+from django.urls import path, include
+from api import views
+
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+
+router.register('student-api', views.StudentModelViewsetAPI,
+                basename='student')
+
+urlpatterns = [
+    path('', include(router.urls)),
+]
+
+
+
+
+
+#================================ views.py =============================
+from .models import Student
+from .serializers import StudentSerializer
+from rest_framework import viewsets
+
+from rest_framework.authentication import BasicAuthentication
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+
+# -------------------- USING CONCRETE VIEW COMBINED CLASS START -----------------------
+# class StudentModelViewsetAPI(viewsets.ModelViewSet):
+class StudentModelViewsetAPI(viewsets.ReadOnlyModelViewSet):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+
+    # Authentication and permission classes can be defined here as well.
+    # If you want to use this authentication and permission classes, for many classes, you can define them in settings.py.
+
+    authentication_classes = [BasicAuthentication] # Default is AllowAny.
+    permission_classes = [IsAuthenticated] # Only authenticated users can access the API.
+    # permission_classes = [IsAdminUser] # Allow only user with Staff Status True.
+
+    # Override Global permission classes of settings.py.
+    # authentication_classes = [BasicAuthentication]
+    # permission_classes = [AllowAny]
+
+# -------------------- USING CONCRETE VIEW COMBINED CLASS END ------------------------------------------
