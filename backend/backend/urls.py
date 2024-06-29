@@ -28,7 +28,7 @@ router.register('student-api', views.StudentModelViewsetAPI,
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include(router.urls)),
+    path('api/', include(router.urls)),
     # path('get-token/', obtain_auth_token),
     path('get-token/', CustomAuthToken.as_view()),
 ]
