@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'api',
     'rest_framework.authtoken',
+    'django_filters'
     
 ]
 
@@ -152,3 +153,13 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # AUTH_USER_MODEL = "api.MyUser"
+
+
+# Apply to all views created.
+# from django_filters.rest_framework import DjangoFilterBackend
+REST_FRAMEWORK = {
+    # 'DEFAULT_FILTER_BACKENDS':['django_filters.rest_framework.DjangoFilterBackend']
+    # 'SEARCH_PARAM':'search' # Default search parameters.
+    'SEARCH_PARAM':'query' # Default search parameters.
+
+}
